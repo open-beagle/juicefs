@@ -27,6 +27,7 @@ jobs:
             -v ${{ github.workspace }}:/go/src/github.com/juicedata/juicefs \
             -w /go/src/github.com/juicedata/juicefs \
             -e BUILD_VERSION=${{ env.BUILD_VERSION }}-beagle \
+            -e GOPROXY=direct \
             registry.cn-qingdao.aliyuncs.com/wod/golang:1.25-alpine \
             bash ./.beagle/build.sh
 
