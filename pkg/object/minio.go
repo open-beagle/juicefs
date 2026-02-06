@@ -31,6 +31,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	smithymiddleware "github.com/aws/smithy-go/middleware"
+	"github.com/juicedata/juicefs/pkg/utils"
 )
 
 type minio struct {
@@ -39,7 +40,7 @@ type minio struct {
 }
 
 func (m *minio) String() string {
-	return fmt.Sprintf("minio://%s/%s/", m.endpoint, m.s3client.bucket)
+	return fmt.Sprintf("minio: %s", m.endpoint)
 }
 
 func (m *minio) Limits() Limits {
@@ -103,6 +104,12 @@ func newMinio(endpoint, accessKey, secretKey, token string) (ObjectStorage, erro
 		bucket = bucket[len("minio/"):]
 	}
 	bucket = strings.Split(bucket, "/")[0]
+
+	baseEndpoint := uri.Scheme + "://" + uri.Host
+	logger := utils.GetLogger("juicefs")
+	logger.Infof("MinIO config: endpoint=%s, baseEndpoint=%s, bucket=%s, pathStyle=%v",
+		endpoint, baseEndpoint, bucket, defaultPathStyle())
+
 	return &minio{s3client{bucket: bucket, s3: client, region: region}, endpoint}, nil
 }
 

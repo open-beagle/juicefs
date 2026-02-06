@@ -1,0 +1,44 @@
+ARG BASE=alpine:3
+
+FROM ${BASE}
+
+ARG AUTHOR="open-beagle"
+ARG VERSION
+
+LABEL maintainer=${AUTHOR} version=${VERSION}
+LABEL description="JuiceFS Community Edition - Mount Service"
+
+ARG TARGETOS
+ARG TARGETARCH
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    fuse3 \
+    tini \
+    redis \
+    curl \
+    bind-tools \
+    iputils \
+    net-tools \
+    busybox-extras \
+    && rm -rf /var/cache/apk/*
+
+# Install mc (MinIO Client)
+ARG MC_VERSION=RELEASE.2024-11-21T17-21-54Z
+RUN curl -fsSL https://dl.min.io/client/mc/release/linux-${TARGETARCH}/archive/mc.${MC_VERSION} -o /usr/local/bin/mc \
+    && chmod +x /usr/local/bin/mc
+
+# Copy pre-built binary
+COPY ./_output/${TARGETOS}/${TARGETARCH}/juicefs /usr/local/bin/juicefs
+
+# Create symlink for mount.juicefs (required for fstab mount)
+RUN ln -s /usr/local/bin/juicefs /sbin/mount.juicefs \
+    && ln -s /usr/local/bin/juicefs /bin/mount.juicefs
+
+# Create mount point directory
+RUN mkdir -p /mnt/jfs
+
+# Set entrypoint
+ENTRYPOINT ["/sbin/tini", "--", "juicefs"]
+CMD ["mount", "--help"]

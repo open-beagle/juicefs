@@ -40,3 +40,8 @@ pkg/meta/testdata
 /juicefsd.exe~
 /juicefs.lite
 dist/
+
+# build output
+_output/
+
+/.tmp

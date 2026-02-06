@@ -55,7 +55,8 @@ func (s *withPrefix) Readlink(name string) (string, error) {
 }
 
 func (p *withPrefix) String() string {
-	return fmt.Sprintf("%s%s", p.os, p.prefix)
+	// Only show the base storage info, not the internal prefix path
+	return fmt.Sprintf("%s", p.os)
 }
 
 func (p *withPrefix) Limits() Limits {

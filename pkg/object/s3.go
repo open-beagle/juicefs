@@ -176,6 +176,14 @@ func (s *s3client) Put(key string, in io.Reader, getters ...AttrGetter) error {
 	}
 	attrs := applyGetters(getters...)
 	attrs.SetStorageClass(s.sc)
+
+	// Debug: log the actual request URL
+	baseEndpoint := ""
+	if s.s3.Options().BaseEndpoint != nil {
+		baseEndpoint = *s.s3.Options().BaseEndpoint
+	}
+	logger.Infof("S3 PutObject: baseEndpoint=%s, bucket=%s, key=%s", baseEndpoint, s.bucket, key)
+
 	resp, err := s.s3.PutObject(ctx, params)
 	if err != nil {
 		var re s3.ResponseError
